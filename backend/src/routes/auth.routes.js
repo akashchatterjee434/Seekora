@@ -1,9 +1,13 @@
 import { Router } from 'express';
-import { registerValidator} from '../validators/auth.validator.js';
-import { register } from '../controllers/auth.controller.js';
+import { registerValidator , loginValidator} from '../validators/auth.validator.js';
+import { register, verifyEmail ,login } from '../controllers/auth.controller.js';
 
 const authRouter = Router();
 
 authRouter.post('/register', registerValidator, register);
+
+authRouter.get('/verify-email', verifyEmail);
+
+authRouter.post('/login' ,loginValidator, login)
 
 export default authRouter;
