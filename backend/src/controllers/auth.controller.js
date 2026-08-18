@@ -2,7 +2,7 @@
 import userModel from '../models/user.model.js';
 import jwt from 'jsonwebtoken';
 import {sendEmail} from '../services/mail.service.js'
-
+import { authUser } from '../middlewares/auth.middleware.js';
 // this part is used for sending a verification mail!!
 export async function register(req, res){
 
@@ -48,41 +48,6 @@ export async function register(req, res){
 
 
      
-}
-
-export async function verifyEmail(req, res) {
-    const {token} = req.query;
-    try{
-         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-   
-   
-    const user = await userModel.findOne({ email:decoded.email});
-
-    if(!user){
-        return res.status(400).json({
-            message:"invalid Token",
-            success:false,
-            err:"user not found"
-        })
-    }
-    user.verified = true;
-    await user.save(); 
-    const HTML = (`
-        <h1>Email verified successfully</h1>
-        <p>Your email has been verified. You can now login ton your account. </p>
-        <a href = "http://localhost:3000/login">Go to Login</a>
-        
-        `)
-
-      return res.send(HTML)
-
-         }catch(err){
-        return res.status(400).json({
-            message:'Invalid or Expired token',
-            success: false,
-            err: err.message
-        })
-    }
 }
 
 export async function login(req, res){
@@ -133,5 +98,60 @@ export async function login(req, res){
             email:user.email
         }
     })
+}
+
+export async function getMe (req, res){
+    const userId = req.user.id
+
+    const user = await userModel.findById(userId).select("-password")
+
+    if(!user){
+        return res.status(404).json({
+            message:"user not found",
+            success:false,
+            err:"User not found"
+        })
+    }
+
+    res.status(200).json({
+        messagge:"User details fetched successfully",
+        success:true,
+        user
+    })
+}
+
+export async function verifyEmail(req, res) {
+    const {token} = req.query;
+    try{
+         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+   
+   
+    const user = await userModel.findOne({ email:decoded.email});
+
+    if(!user){
+        return res.status(400).json({
+            message:"invalid Token",
+            success:false,
+            err:"user not found"
+        })
+    }
+    user.verified = true;
+    await user.save(); 
+    const html = (`
+        <h1>Email verified successfully</h1>
+        <p>Your email has been verified. You can now login ton your account. </p>
+        <a href = "http://localhost:3000/login">Go to Login</a>
+        
+        `)
+
+      return res.send(html)
+
+         }catch(err){
+        return res.status(400).json({
+            message:'Invalid or Expired token',
+            success: false,
+            err: err.message
+        })
+    }
 }
 

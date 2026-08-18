@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   verified: { type: Boolean, default: false },
 }, { timestamps: true });
 
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function () {
   if (!this.isModified('password')) {
     return;
   }
