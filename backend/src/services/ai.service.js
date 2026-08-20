@@ -7,7 +7,7 @@ const llm = new ChatGoogle({
 
 
 export async function testAi(){
-    llm.invoke("what is ai explain under 100 words").then((response)=>{
+    llm.invoke("what is the capital of assam?").then((response)=>{
         console.log(response.text);
         
     })
